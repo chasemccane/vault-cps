@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopify B2B — Vault CPS Resource Guide</title>
+  <style>
+    :root {
+      --vcps-green: #2db84b;
+      --vcps-dark: #1d3a2c;
+      --shopify-green: #008060;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.6;
+    }
+
+    /* ── PASSCODE OVERLAY ── */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--vcps-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .overlay-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 44px 48px;
+      width: min(420px, calc(100vw - 48px));
+      text-align: center;
+    }
+
+    .overlay-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .ob-vcps {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--vcps-green);
+      letter-spacing: -0.3px;
+    }
+
+    .ob-sep { color: rgba(255,255,255,0.25); font-size: 20px; }
+
+    .ob-shopify {
+      font-size: 20px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .overlay-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .overlay-sub {
+      color: rgba(255,255,255,0.55);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    #pass-input {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 3px;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+
+    #pass-input::placeholder { color: rgba(255,255,255,0.28); letter-spacing: 0; }
+    #pass-input:focus { border-color: var(--vcps-green); }
+
+    #pass-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--vcps-green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    #pass-btn:hover { opacity: 0.88; }
+
+    #pass-err {
+      color: #ff7070;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── MAIN ── */
+    #content { display: none; }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--vcps-dark);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .h-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .h-vcps {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--vcps-green);
+      letter-spacing: -0.2px;
+    }
+
+    .h-sep { color: rgba(255,255,255,0.22); font-size: 18px; }
+
+    .h-shopify {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .h-tag {
+      background: rgba(45,184,75,0.18);
+      border: 1px solid rgba(45,184,75,0.38);
+      color: var(--vcps-green);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(140deg, var(--vcps-dark) 0%, #254535 100%);
+      color: #fff;
+      padding: 60px 24px 52px;
+    }
+
+    .hero-inner { max-width: 1040px; margin: 0 auto; }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--vcps-green);
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-size: clamp(30px, 4vw, 44px);
+      font-weight: 800;
+      line-height: 1.18;
+      letter-spacing: -0.8px;
+      margin-bottom: 22px;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: rgba(255,255,255,0.72);
+      max-width: 620px;
+      line-height: 1.75;
+      margin-bottom: 44px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 10px;
+      padding: 16px 22px;
+      min-width: 168px;
+    }
+
+    .stat-n {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--vcps-green);
+      line-height: 1;
+    }
+
+    .stat-l {
+      font-size: 12px;
+      color: rgba(255,255,255,0.56);
+      margin-top: 5px;
+      line-height: 1.45;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 40px 24px 72px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 680px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    /* ── CARDS ── */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .card-stripe { height: 4px; background: var(--vcps-green); }
+    .card-stripe.s { background: var(--shopify-green); }
+    .card-stripe.grad {
+      background: linear-gradient(90deg, var(--vcps-green), var(--shopify-green));
+    }
+
+    .card-body { padding: 26px; }
+
+    .card-hd {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card-icon { font-size: 26px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1.3;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .b-native  { background: #dcfce7; color: #166534; }
+    .b-mixed   { background: #fef9c3; color: #854d0e; }
+    .b-crit    { background: #fee2e2; color: #991b1b; }
+    .b-info    { background: #eff6ff; color: #1d4ed8; }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--gray-700);
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    /* Pricing tiers */
+    .pricing-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 4px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) { .pricing-row { grid-template-columns: 1fr; } }
+
+    .tier {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+
+    .tier-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gray-500);
+      margin-bottom: 8px;
+    }
+
+    .tier-price {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--shopify-green);
+      line-height: 1;
+    }
+
+    .tier-price span { font-size: 15px; font-weight: 400; color: var(--gray-500); }
+    .tier-note { font-size: 12px; color: var(--gray-500); margin-top: 5px; }
+
+    /* Docs toggle */
+    .docs-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--shopify-green);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+    }
+
+    .docs-btn:hover { color: var(--vcps-green); }
+
+    .arrow {
+      font-size: 10px;
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    .docs-btn.open .arrow { transform: rotate(180deg); }
+
+    .docs-list {
+      display: none;
+      margin-top: 14px;
+      border-top: 1px solid var(--gray-100);
+      padding-top: 14px;
+    }
+
+    .docs-list.open { display: block; }
+
+    .doc-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 0;
+      font-size: 13px;
+      color: var(--shopify-green);
+      text-decoration: none;
+      border-bottom: 1px solid var(--gray-100);
+      transition: color 0.15s;
+      line-height: 1.4;
+    }
+
+    .doc-link:last-child { border-bottom: none; }
+    .doc-link:hover { color: var(--vcps-green); }
+    .doc-link::before { content: "→"; flex-shrink: 0; color: var(--gray-500); font-size: 12px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--vcps-dark);
+      color: #fff;
+      padding: 52px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 36px;
+    }
+
+    .footer-contact h3 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      color: var(--vcps-green);
+      margin-bottom: 18px;
+    }
+
+    .fn { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+    .ft { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 20px; }
+
+    .fc {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.82);
+      margin-bottom: 10px;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .fc:hover { color: var(--vcps-green); }
+
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .footer-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .fl-vcps { font-size: 21px; font-weight: 800; color: var(--vcps-green); }
+    .fl-sep  { color: rgba(255,255,255,0.22); }
+    .fl-shop { font-size: 17px; font-weight: 600; color: rgba(255,255,255,0.65); }
+
+    .footer-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PASSCODE OVERLAY -->
+<div id="overlay">
+  <div class="overlay-card">
+    <div class="overlay-brand">
+      <span class="ob-vcps">VAULT CPS</span>
+      <span class="ob-sep">×</span>
+      <span class="ob-shopify">Shopify</span>
+    </div>
+    <div class="overlay-title">B2B Resource Guide</div>
+    <div class="overlay-sub">Enter your passcode to access this page</div>
+    <input type="password" id="pass-input" placeholder="Passcode" autocomplete="off">
+    <button id="pass-btn" onclick="checkPass()">Access Guide →</button>
+    <div id="pass-err">Incorrect passcode — please try again.</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="h-brand">
+        <span class="h-vcps">VAULT CPS</span>
+        <span class="h-sep">×</span>
+        <span class="h-shopify">Shopify Plus</span>
+      </div>
+      <span class="h-tag">B2B Resource Guide</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Prepared for Vault CPS</div>
+      <h1 class="hero-title">Your Shopify B2B<br>Reference Guide</h1>
+      <p class="hero-sub">
+        Everything we've discussed — pricing, native capabilities, and integration
+        considerations — organized in one place for the Vault CPS team. Use this as
+        your go-to reference as you evaluate Shopify Plus for your B2B operations.
+      </p>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">$9B+</div>
+          <div class="stat-l">B2B GMV processed annually on Shopify</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">100%</div>
+          <div class="stat-l">Native B2B — no separate platform needed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">Built-in</div>
+          <div class="stat-l">Full B2B suite — companies, catalogs, portals, pricing</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT GRID -->
+  <div class="grid">
+
+    <!-- PRICING — full width -->
+    <div class="card full">
+      <div class="card-stripe s"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">💳</span>
+          <div>
+            <div class="card-title">Shopify Plus Pricing</div>
+            <span class="badge b-info">Platform Fee</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          Shopify Plus is a flat monthly platform fee — not a revenue share. Your margin stays yours.
+          The only variable is term length.
+        </p>
+        <div class="pricing-row">
+          <div class="tier">
+            <div class="tier-label">3-Year Term</div>
+            <div class="tier-price">$2,300<span>/mo</span></div>
+            <div class="tier-note">Best rate — locked in for 3 years</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">1-Year Term</div>
+            <div class="tier-price">$2,500<span>/mo</span></div>
+            <div class="tier-note">Annual commitment, more flexibility</div>
+          </div>
+        </div>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/intro-to-shopify/pricing-plans/plans-features/shopify-plus-plan" target="_blank">Shopify Plus Plan Overview</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div class="card">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">📦</span>
+          <div>
+            <div class="card-title">Inventory &amp; Quantity on Hand</div>
+            <span class="badge b-native">Native</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          B2B customers see real-time inventory levels for products in their catalog when logged in.
+          Shopify tracks inventory across multiple locations automatically — no custom build required.
+          Visibility depends on theme configuration but works out of the box.
+        </p>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/products/inventory" target="_blank">Managing Inventory — Full overview of how tracking works</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/products/inventory/fundamentals/inventory-states" target="_blank">Inventory States — Available vs On Hand vs Unavailable</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/report-types/default-reports/inventory-reports" target="_blank">Inventory Reports — Snapshots, sold quantities &amp; trends</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER ACCOUNTS -->
+    <div class="card">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">👤</span>
+          <div>
+            <div class="card-title">Customer Account Management</div>
+            <span class="badge b-native">Native</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          The B2B customer portal gives your buyers full self-service: manage company info and
+          locations, add users with role-based permissions, view complete order history, manage
+          payment methods and addresses, and track shipments — all out of the box.
+        </p>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/b2b/customer-login-and-accounts" target="_blank">B2B Sign-in &amp; Customer Accounts</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/customers/customer-accounts" target="_blank">Customer Accounts Overview — Full feature breakdown</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/b2b/companies-and-customers/adding-customers" target="_blank">Creating &amp; Managing B2B Company Contacts</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERING SERVICES -->
+    <div class="card">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">🛒</span>
+          <div>
+            <div class="card-title">Ordering Services</div>
+            <span class="badge b-native">Native</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          Services can be sold alongside physical products — set them up as digital products or use
+          variants to structure them however fits your model. B2B customers order them like any
+          other product, with custom pricing per company if needed.
+        </p>
+      </div>
+    </div>
+
+    <!-- CUSTOMER VISIBLE REPORTS -->
+    <div class="card">
+      <div class="card-stripe s"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">📊</span>
+          <div>
+            <div class="card-title">Customer Visible Reports</div>
+            <span class="badge b-mixed">Native + Optional App</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          Out of the box, customers see full order history with filtering, invoice details, and
+          shipment tracking in their portal. For downloadable purchase summaries or advanced
+          spending analytics, light theme customization or a simple app handles the gap. On the
+          admin side you get robust B2B-specific reporting built in.
+        </p>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/b2b/reports-and-automations/reports" target="_blank">Creating Reports for B2B Sales</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports" target="_blank">Shopify Analytics — Dashboards &amp; custom explorations</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/report-types/analytics-fields" target="_blank">Analytics Data Points Reference — Full field reference</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RMA -->
+    <div class="card">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">↩️</span>
+          <div>
+            <div class="card-title">RMA Requests</div>
+            <span class="badge b-mixed">Native Basics + Apps for Advanced</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          Native: customers initiate return requests through their portal, you approve in admin and
+          issue refunds. For advanced RMA workflows — auto-generated labels, custom approval rules,
+          advanced restocking logic, warehouse integration — specialized apps extend this to match
+          your exact return policy.
+        </p>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/fulfillment/managing-orders/returns/self-serve-returns/setup" target="_blank">Setting Up Self-Serve Returns</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/fulfillment/managing-orders/returns/creating-returns" target="_blank">Creating &amp; Processing Returns — Step-by-step guide</a>
+          <a class="doc-link" href="https://help.shopify.com/en/manual/fulfillment/managing-orders/refunding-orders" target="_blank">Refunding Orders</a>
+          <a class="doc-link" href="https://apps.shopify.com/search?q=returns+rma" target="_blank">Browse RMA &amp; Returns Apps</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERP INTEGRATION — full width -->
+    <div class="card full">
+      <div class="card-stripe grad"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">🔗</span>
+          <div>
+            <div class="card-title">The Critical Piece: ERP Integration</div>
+            <span class="badge b-crit">Scope This Early</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          The ERP integration determines how seamlessly everything flows between Shopify and your
+          back-office systems. A solid integration covers: real-time or scheduled sync of products,
+          pricing, and inventory; bi-directional customer data; order push to your ERP for
+          fulfillment; and invoicing and payment term management. This is the most important
+          technical workstream to define upfront — it shapes the implementation timeline and
+          the partner you'll need.
+        </p>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/b2b/reports-and-automations" target="_blank">Reporting, Automations &amp; Integrations in B2B</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- B2B OVERVIEW — full width -->
+    <div class="card full">
+      <div class="card-stripe s"></div>
+      <div class="card-body">
+        <div class="card-hd">
+          <span class="card-icon">📚</span>
+          <div>
+            <div class="card-title">General B2B Overview</div>
+            <span class="badge b-info">Start Here</span>
+          </div>
+        </div>
+        <p class="card-desc">
+          The Shopify B2B Help Center is the main hub for all B2B documentation — from company
+          management and price catalogs to permissions and payment terms. A great starting point
+          if you want to explore the full feature surface beyond what we've covered here.
+        </p>
+        <button class="docs-btn" onclick="toggleDocs(this)">
+          Documentation <span class="arrow">▼</span>
+        </button>
+        <div class="docs-list">
+          <a class="doc-link" href="https://help.shopify.com/en/manual/b2b" target="_blank">Shopify B2B Help Center — Main hub for all B2B docs</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-contact">
+        <h3>Your Shopify Contact</h3>
+        <div class="fn">Chase McCane</div>
+        <div class="ft">Sr. Account Executive, Commercial · Shopify</div>
+        <a class="fc" href="tel:+15105526224">📞 +1 (510) 552-6224</a>
+        <a class="fc" href="mailto:chase.mccane@shopify.com">✉️ chase.mccane@shopify.com</a>
+      </div>
+      <div class="footer-right">
+        <div class="footer-logo-row">
+          <span class="fl-vcps">VAULT CPS</span>
+          <span class="fl-sep">×</span>
+          <span class="fl-shop">Shopify Plus</span>
+        </div>
+        <div class="footer-note">Prepared by Chase McCane · April 2026</div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /content -->
+
+<script>
+  const PASS = 'vault2026';
+  const KEY  = 'vcps-guide';
+
+  if (sessionStorage.getItem(KEY) === '1') unlock();
+
+  document.getElementById('pass-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPass();
+  });
+
+  function checkPass() {
+    const val = document.getElementById('pass-input').value.trim();
+    if (val === PASS) {
+      unlock();
+    } else {
+      document.getElementById('pass-err').style.display = 'block';
+      document.getElementById('pass-input').value = '';
+      document.getElementById('pass-input').focus();
+    }
+  }
+
+  function unlock() {
+    sessionStorage.setItem(KEY, '1');
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+
+  function toggleDocs(btn) {
+    btn.classList.toggle('open');
+    btn.nextElementSibling.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
