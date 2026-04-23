@@ -539,6 +539,107 @@
     }
 
     .ns-flow-item span { padding-top: 1px; }
+
+    /* ── TABS ── */
+    .tab-strip {
+      background: var(--vcps-dark);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .tab-strip-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      padding: 14px 22px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.85); }
+    .tab-btn.active { color: var(--vcps-green); border-bottom-color: var(--vcps-green); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── OVERVIEW TAB ── */
+    .milestone-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .milestone {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+    }
+    .milestone.done { background: rgba(45,184,75,0.06); border-color: rgba(45,184,75,0.22); }
+    .milestone.next { background: rgba(0,128,96,0.06); border-color: rgba(0,128,96,0.25); }
+    .m-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+    .m-date { font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+    .m-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+    .m-note { font-size: 13px; color: var(--gray-500); margin-top: 3px; line-height: 1.45; }
+    .urgency-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(45,184,75,0.08);
+      border: 1px solid rgba(45,184,75,0.25);
+      border-radius: 8px;
+      padding: 13px 16px;
+      font-size: 14px;
+      color: var(--gray-700);
+      line-height: 1.5;
+      margin-top: 16px;
+    }
+    .req-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    @media (max-width: 680px) { .req-grid { grid-template-columns: 1fr; } }
+    .req-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+    }
+    .req-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+    .req-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+    .req-note { font-size: 12px; color: var(--gray-500); margin-top: 2px; line-height: 1.4; }
+    .team-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 8px;
+    }
+    @media (max-width: 580px) { .team-cols { grid-template-columns: 1fr; } }
+    .team-col-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .tm { padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+    .tm:last-child { border-bottom: none; }
+    .tm-name { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+    .tm-role { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -600,6 +701,17 @@
       </div>
     </div>
   </section>
+
+  <!-- TABS -->
+  <div class="tab-strip">
+    <div class="tab-strip-inner">
+      <button class="tab-btn active" onclick="switchTab('guide', this)">Platform Guide</button>
+      <button class="tab-btn" onclick="switchTab('overview', this)">Evaluation Overview</button>
+    </div>
+  </div>
+
+  <!-- TAB: PLATFORM GUIDE -->
+  <div id="tab-guide" class="tab-panel active">
 
   <!-- CONTENT GRID -->
   <div class="grid">
@@ -858,6 +970,213 @@
     </div>
 
   </div><!-- /grid -->
+  </div><!-- /tab-guide -->
+
+  <!-- TAB: EVALUATION OVERVIEW -->
+  <div id="tab-overview" class="tab-panel">
+    <div class="grid">
+
+      <!-- YOUR PLATFORM STORY -->
+      <div class="card full">
+        <div class="card-stripe"></div>
+        <div class="card-body">
+          <div class="card-hd">
+            <span class="card-icon">🏗️</span>
+            <div>
+              <div class="card-title">Your Platform Story</div>
+              <span class="badge b-info">Where You Are Today</span>
+            </div>
+          </div>
+          <p class="card-desc">
+            Vault CPS has been running a homegrown e-commerce and ERP platform for nearly 20 years — the same codebase powering both. The business has made the decision to modernize: NetSuite is already live as the financial ERP (as of December 2025), and the next step is replacing the commerce layer with a platform that integrates cleanly and scales with the business. The current system is in "keep the lights on" mode as resources shift toward building the new ecosystem.
+          </p>
+          <p class="card-desc" style="margin-bottom:0">
+            The goal is to have a new commerce platform live in <strong>9–12 months</strong>, with customers migrated in waves from the legacy system to the new one.
+          </p>
+        </div>
+      </div>
+
+      <!-- KEY REQUIREMENTS -->
+      <div class="card full">
+        <div class="card-stripe"></div>
+        <div class="card-body">
+          <div class="card-hd">
+            <span class="card-icon">✅</span>
+            <div>
+              <div class="card-title">What the New Platform Needs to Do</div>
+              <span class="badge b-native">Requirements</span>
+            </div>
+          </div>
+          <div class="req-grid">
+            <div class="req-item">
+              <span class="req-icon">🏷️</span>
+              <div>
+                <div class="req-title">Account-Based Pricing &amp; Product Gating</div>
+                <div class="req-note">Each logged-in customer sees only their contracted pricing and eligible products</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">📦</span>
+              <div>
+                <div class="req-title">Consignment Inventory Visibility</div>
+                <div class="req-note">Customers see their pre-purchased inventory held in Vault CPS's warehouse alongside standard stock</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">📊</span>
+              <div>
+                <div class="req-title">Customer-Facing Reports</div>
+                <div class="req-note">30+ account-scoped static reports; schedulable delivery (daily/weekly/monthly) via email or FTP</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">↩️</span>
+              <div>
+                <div class="req-title">RMA &amp; Returns Flow</div>
+                <div class="req-note">Complex return options (repair, credit, consignment, destruction, warranty) — streamlined but feature-complete</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">⚙️</span>
+              <div>
+                <div class="req-title">Configuration Automation Hooks</div>
+                <div class="req-note">Device provisioning (payment terminals, phones) stays partially homegrown but must integrate via API or iframe at order time</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">🔗</span>
+              <div>
+                <div class="req-title">NetSuite Integration</div>
+                <div class="req-note">Bi-directional sync for orders, pricing, inventory, and customer data</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">💳</span>
+              <div>
+                <div class="req-title">ACH + Credit Card Payments</div>
+                <div class="req-note">Credit card via tokenized iframe (no PCI storage); ACH required for terms-based customers</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">🔌</span>
+              <div>
+                <div class="req-title">API Ordering</div>
+                <div class="req-note">Subset of customers place orders programmatically — must be supported natively</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">👥</span>
+              <div>
+                <div class="req-title">User Permission Management</div>
+                <div class="req-note">Company admins control which employees can order, submit RMAs, manage addresses, and more</div>
+              </div>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">📈</span>
+              <div>
+                <div class="req-title">Sales Credit Attribution</div>
+                <div class="req-note">All orders tied to sales accounts so reps receive credit for their customers' purchases</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVALUATION TIMELINE -->
+      <div class="card full">
+        <div class="card-stripe s"></div>
+        <div class="card-body">
+          <div class="card-hd">
+            <span class="card-icon">🗓️</span>
+            <div>
+              <div class="card-title">Evaluation Timeline</div>
+              <span class="badge b-mixed">In Progress</span>
+            </div>
+          </div>
+          <div class="milestone-list">
+            <div class="milestone done">
+              <span class="m-icon">✅</span>
+              <div>
+                <div class="m-date">April 23, 2026</div>
+                <div class="m-title">Intro Call — Complete</div>
+                <div class="m-note">Requirements documented, evaluation process aligned, team introduced</div>
+              </div>
+            </div>
+            <div class="milestone next">
+              <span class="m-icon">▶️</span>
+              <div>
+                <div class="m-date">Week of April 28</div>
+                <div class="m-title">Platform Walkthrough</div>
+                <div class="m-note">Jeff walks Shopify through the live system — customer experience, reporting, and configuration flows (~30–45 min)</div>
+              </div>
+            </div>
+            <div class="milestone">
+              <span class="m-icon">🔲</span>
+              <div>
+                <div class="m-date">Week of April 28</div>
+                <div class="m-title">Tailored Shopify Demo</div>
+                <div class="m-note">Built around Vault CPS's actual use cases — account pricing, consignment, RMA, reporting, NetSuite integration</div>
+              </div>
+            </div>
+            <div class="milestone">
+              <span class="m-icon">🔲</span>
+              <div>
+                <div class="m-date">~2 Months Out</div>
+                <div class="m-title">Platform Decision</div>
+                <div class="m-note">Decision needed to keep the 9–12 month go-live timeline on track</div>
+              </div>
+            </div>
+          </div>
+          <div class="urgency-note">
+            ⏱️ <span>The goal is to be live on a new platform in <strong>9–12 months</strong> — a platform decision in the next <strong>~2 months</strong> keeps that timeline achievable.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE TEAM -->
+      <div class="card full">
+        <div class="card-stripe grad"></div>
+        <div class="card-body">
+          <div class="card-hd">
+            <span class="card-icon">🤝</span>
+            <div>
+              <div class="card-title">The Team</div>
+              <span class="badge b-info">Evaluation Participants</span>
+            </div>
+          </div>
+          <div class="team-cols">
+            <div>
+              <div class="team-col-label">Vault CPS</div>
+              <div class="tm">
+                <div class="tm-name">Jason Martin</div>
+                <div class="tm-role">Product Owner</div>
+              </div>
+              <div class="tm">
+                <div class="tm-name">Catherine Deuty</div>
+                <div class="tm-role">Manager, BA Team</div>
+              </div>
+              <div class="tm">
+                <div class="tm-name">Jeff Reddekopp</div>
+                <div class="tm-role">Business Analyst</div>
+              </div>
+            </div>
+            <div>
+              <div class="team-col-label">Shopify</div>
+              <div class="tm">
+                <div class="tm-name">Chase McCane</div>
+                <div class="tm-role">Sr. Account Executive, Commercial</div>
+              </div>
+              <div class="tm">
+                <div class="tm-name">Kevin Zaw</div>
+                <div class="tm-role">Solutions Engineer, B2B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /overview grid -->
+  </div><!-- /tab-overview -->
 
   <!-- FOOTER -->
   <footer class="footer">
@@ -912,6 +1231,13 @@
   function toggleDocs(btn) {
     btn.classList.toggle('open');
     btn.nextElementSibling.classList.toggle('open');
+  }
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
   }
 </script>
 
